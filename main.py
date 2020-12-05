@@ -1,5 +1,5 @@
 from binance.client import Client 
-
+# jamel comment
 
 import pandas as pd
 import numpy as np
@@ -19,8 +19,6 @@ print(secret_path)
 currency_pair = "BTCUSDT"
 start = "1 Aug, 2020"
 end = "30 Nov, 2020"
-#start = "30 Nov, 2010"
-#end = "30 Nov, 2020"
 
 bt = BackTest(key_path, secret_path)
 bt.initialize_client()
