@@ -36,7 +36,7 @@ end_date = "1 Jan, 2021"
 # fetch data
 data = client.get_historical_klines(symbol, Client.KLINE_INTERVAL_1DAY, start_date, end_date)
 
-
+# create prices df
 df_prices = pd.DataFrame(data)
 df_prices.columns = ['Open time', 'Open', 'High', 'Low', 'Close', 'Volume', 'Close time', 'Quote asset volume',' Number of trades', 'Taker buy base asset volume', 'Taker buy qoute asset volume', 'Ignore']
 
@@ -50,7 +50,7 @@ periods = set(period_fast+period_slow)
 df_prices['Open time'] = pd.to_datetime(df_prices['Open time'], unit='ms')
 df_prices['Close time'] = pd.to_datetime(df_prices['Close time'], unit='ms')
 
-
+# SMA
 for period in periods:
     df_prices["SMA"+str(period)] = df_prices[price_column].rolling(period).mean()
     

@@ -32,19 +32,32 @@ class BackTest:
         return self.df_prices
     
     
-    def name_price_columns(self, nameList) -> None:
-        self.df_prices.columns = nameList
+    #def name_price_columns(self, nameList) -> None:
+        #self.df_prices.columns = nameList
     
         
-    def add_sma_columns(self, slow_periods: list, fast_periods: list) -> pd.DataFrame:
+    def create_sma_df(self, fast_periods: list, slow_periods: list) -> pd.DataFrame:
          self.periods = set(slow_periods + fast_periods)
-         sma_columns = pd.DataFrame([])
-         for period in periods:
-             sma_columns["SMA"+str(period)] = sma_columns[price_column].rolling(period).mean()
-         return sma_columns
+         self.df_sma = pd.DataFrame()
+         for period in self.periods:
+             self.df_sma["SMA"+str(period)] = self.df_prices["Close"].rolling(period).mean()
+         return self.df_sma
      
-        
+    # Remove first data rows for SMA to start    
+    def remove_rows(self, dataframe: pd.DataFrame, numRows: int) -> pd.DataFrame:
+         start = numRows
+         dataframe = dataframe[start:]
+         return dataframe
     
+    def create_signals(self, dataframe: pd.DataFrame, period_fast, period_slow) -> pd.DataFrame:
+        self.df_signals = pd.DataFrame()
+        for a in period_fast:
+            for b in period_slow:
+                if a!=b and a<b:
+                    sma_name=f"SMA({a},{b})"
+                    self.df_signals[sma_name] = self.df_sma[f"SMA{a}"] > self.df_sma[f"SMA{b}"]              
+        return self.df_signals
+
 
     
 
