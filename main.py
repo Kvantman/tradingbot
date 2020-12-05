@@ -3,15 +3,15 @@ from binance.client import Client
 
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-import quantstats as qs
-import statistics
+#import matplotlib.pyplot as plt
+#import quantstats as qs
+#import statistics
 
-from KlineInterval import *
+#from KlineInterval import *
 from BackTest import *
 
-key_path = r'C:\Users\JLuca\Documents\repos\Trading Bot\API_key.txt'
-secret_path = r'C:\Users\JLuca\Documents\repos\Trading Bot\API_secret.txt'
+key_path = r'/home/pi/repos/TradingBot/tradingbot/API_key.txt'
+secret_path = r'/home/pi/repos/TradingBot/tradingbot/API_secret.txt'
 
 print(key_path)
 print(secret_path)
