@@ -1,8 +1,6 @@
-from enum import Enum #, unique
 from binance.client import Client 
 
-#@unique
-class KlineInterval(Enum):
+class KlineInterval():
     ONE_MIN = Client.KLINE_INTERVAL_1MINUTE
     THREE_MIN = Client.KLINE_INTERVAL_3MINUTE 
     FIVE_MIN = Client.KLINE_INTERVAL_5MINUTE
