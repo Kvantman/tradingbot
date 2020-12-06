@@ -54,7 +54,6 @@ class BackTest:
         if self.indicator == "SMA":
             self.create_sma_df()
         elif self.indicator == "EMA":
-            print("EMA found...")
             self.create_ema_df()
         elif self.indicator == "WMA":
             self.create_wma_df()
@@ -80,7 +79,6 @@ class BackTest:
     
     
     def create_ema_df(self) -> None:
-        print("create ema")
         self.df_ema = pd.DataFrame()
         
         for period in self.periods:

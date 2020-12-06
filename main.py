@@ -10,6 +10,7 @@ import numpy as np
 from KlineInterval import *
 from BackTest import *
 from ComputePerformance import *
+from ComputeStatistics import *
 
 key_path = r'/home/pi/repos/TradingBot/tradingbot/API_key.txt'
 secret_path = r'/home/pi/repos/TradingBot/tradingbot/API_secret.txt'
@@ -65,5 +66,11 @@ print("\n WMA")
 print(test_wma)
 print("\n SMA")
 print(test)
+
+comp_stat = ComputeStatistics()
+my_stats = comp_stat.calculate_stats(performance, backtest.periods)
+
+print("...MY STATS...")
+print(my_stats)
 
 
