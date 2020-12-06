@@ -2,7 +2,7 @@ import pandas as pd
 from binance.client import Client 
 from KlineInterval import *
 import statistics
-import QuantStats as qs
+import quantstats as qs
 
 class ComputeStatistics:
     
@@ -25,11 +25,11 @@ class ComputeStatistics:
             #self.df_stats.loc['Variance', col] = "{:.2f}".format(var)
             
             # Portfolio value at beginning
-            start_val = df_performance.at[start, col]
+            start_val = df_performance.at[max(periods), col]
             self.df_stats.loc['Value at start', col] = "{:.0f}".format(start_val)
             
             # Portfolio value at end
-            end_val = df_performance.at[len(df_performance)+start-1,col]
+            end_val = df_performance.at[len(df_performance) + max(periods) - 1,col]
             self.df_stats.loc['Value at end', col] = "{:.0f}".format(end_val)
             
             # Total return

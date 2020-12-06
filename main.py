@@ -3,17 +3,17 @@ from binance.client import Client
 
 import pandas as pd
 import numpy as np
-#import matplotlib.pyplot as plt
-#import quantstats as qs
-#import statistics
+import matplotlib.pyplot as plt
+import quantstats as qs
+import statistics
 
 from KlineInterval import *
 from BackTest import *
 from ComputePerformance import *
 from ComputeStatistics import *
 
-key_path = r'/home/pi/repos/TradingBot/tradingbot/API_key.txt'
-secret_path = r'/home/pi/repos/TradingBot/tradingbot/API_secret.txt'
+key_path = r'C:\Users\JLuca\Documents\repos\TradingBot/API_key.txt'
+secret_path = r'C:\Users\JLuca\Documents\repos\TradingBot/API_secret.txt'
 
 #input_key_path = input("Enter path to your API key: ")
 #print(input_key_path)
@@ -68,7 +68,7 @@ print("\n SMA")
 print(test)
 
 comp_stat = ComputeStatistics()
-my_stats = comp_stat.calculate_stats(performance, backtest.periods)
+my_stats = comp_stat.calculate_stats(test, backtest.periods)
 
 print("...MY STATS...")
 print(my_stats)
