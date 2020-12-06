@@ -7,7 +7,7 @@ import numpy as np
 #import quantstats as qs
 #import statistics
 
-#from KlineInterval import *
+from KlineInterval import *
 from BackTest import *
 
 key_path = r'/home/pi/repos/TradingBot/tradingbot/API_key.txt'
@@ -18,28 +18,25 @@ secret_path = r'/home/pi/repos/TradingBot/tradingbot/API_secret.txt'
 #input_key_path = input("Enter path to your API secret: ")
 #print(input_secret_path)
 
-currency_pair = "BTCUSDT"
-start = "1 Aug, 2020"
-end = "30 Nov, 2020"
+#backtest = BackTest(input_key_path, input_secret_path)
+backtest = BackTest(key_path, secret_path)
 
-#bt = BackTest(input_key_path, input_secret_path)
-bt = BackTest(key_path, secret_path)
-bt.initialize_client()
-data = bt.fetch_data(currency_pair, Client.KLINE_INTERVAL_2HOUR, start, end)
+# # Optional
+# backtest.set_symbol("BTCUSDT")
+# backtest.set_start_date("1 Dec, 2019")
+# backtest.set_end_date("1 Dec, 2020")
+# backtest.set_kline_interval = TWELVE_HOURS # TODO: set type?
+# backtest.set_periods_fast = [2, 4, 6, 8]
+# backtest.set_periods_slow = [20, 25, 30, 40]
+# backtest.set_price_column = "Close"
 
-df_prices = bt.create_price_df(data)
+backtest.initialize_client()
+my_prices = backtest.df_prices
+my_SMA = backtest.df_sma
+my_signals = backtest.df_signals
 
-period_fast = [2, 4, 6, 8]
-period_slow = [20, 25, 30, 40]
-
-df_sma = bt.create_sma_df(period_fast, period_slow)
-
-periods = set(period_fast + period_slow)
-start = max(periods)
-
-df_prices = bt.remove_rows(df_prices, start)
-
-print(df_prices)
-
-df_signals = bt.create_signals(df_prices, period_fast, period_slow)
-print(df_signals)
+print(my_prices)
+print("\n....hohohohoo..........\n")
+print(my_SMA)
+print("\n....hohohohoo..........\n")
+print(my_signals)
