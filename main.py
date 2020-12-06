@@ -9,6 +9,7 @@ import numpy as np
 
 from KlineInterval import *
 from BackTest import *
+from ComputePerformance import *
 
 key_path = r'/home/pi/repos/TradingBot/tradingbot/API_key.txt'
 secret_path = r'/home/pi/repos/TradingBot/tradingbot/API_secret.txt'
@@ -18,25 +19,51 @@ secret_path = r'/home/pi/repos/TradingBot/tradingbot/API_secret.txt'
 #input_key_path = input("Enter path to your API secret: ")
 #print(input_secret_path)
 
-#backtest = BackTest(input_key_path, input_secret_path)
+#backtest_old = BackTest(input_key_path, input_secret_path)
 backtest = BackTest(key_path, secret_path)
+backtest_ema = BackTest(key_path, secret_path)
+backtest_wma = BackTest(key_path, secret_path)
+
 
 # # Optional
-# backtest.set_symbol("BTCUSDT")
-# backtest.set_start_date("1 Dec, 2019")
-# backtest.set_end_date("1 Dec, 2020")
-# backtest.set_kline_interval = TWELVE_HOURS # TODO: set type?
-# backtest.set_periods_fast = [2, 4, 6, 8]
-# backtest.set_periods_slow = [20, 25, 30, 40]
-# backtest.set_price_column = "Close"
+# backtest.symbol = "BTCUSDT"
+backtest_wma.start_date = "1 Jun, 2018"
+backtest_wma.end_date = "1 Jun, 2019"
+# backtest.kline_interval = KlineInterval.TWELVE_HOURS
+backtest_wma.periods_fast = [4, 6]
+backtest_wma.periods_slow = [12, 18, 30]
+
+backtest.indicator = "SMA"
+backtest_ema.indicator = "EMA"
+backtest_wma.indicator = "WMA"
 
 backtest.initialize_client()
+backtest_ema.initialize_client()
+backtest_wma.initialize_client()
+
 my_prices = backtest.df_prices
-my_SMA = backtest.df_sma
 my_signals = backtest.df_signals
 
-print(my_prices)
-print("\n....hohohohoo..........\n")
-print(my_SMA)
-print("\n....hohohohoo..........\n")
-print(my_signals)
+prices_ema = backtest_ema.df_prices
+signals_ema = backtest_ema.df_signals
+
+prices_wma = backtest_wma.df_prices
+signals_wma = backtest_wma.df_signals
+
+
+performance = ComputePerformance(my_signals, my_prices)
+performance_ema = ComputePerformance(signals_ema, prices_ema)
+performance_wma = ComputePerformance(signals_wma, prices_wma)
+
+test = performance.get_macd_performance()
+test_ema = performance_ema.get_macd_performance()
+test_wma = performance_wma.get_macd_performance()
+
+print("\n EMA")
+print(test_ema)
+print("\n WMA")
+print(test_wma)
+print("\n SMA")
+print(test)
+
+
