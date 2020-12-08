@@ -1,12 +1,12 @@
+# Import packages
 from binance.client import Client 
-# jamel comment
-
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import quantstats as qs
 import statistics
 
+# Import Classes
 from KlineInterval import *
 from BackTest import *
 from ComputePerformance import *
@@ -15,62 +15,39 @@ from ComputeStatistics import *
 key_path = r'C:\Users\JLuca\Documents\repos\TradingBot/API_key.txt'
 secret_path = r'C:\Users\JLuca\Documents\repos\TradingBot/API_secret.txt'
 
-#input_key_path = input("Enter path to your API key: ")
-#print(input_key_path)
-#input_key_path = input("Enter path to your API secret: ")
-#print(input_secret_path)
-
-#backtest_old = BackTest(input_key_path, input_secret_path)
 backtest = BackTest(key_path, secret_path)
-backtest_ema = BackTest(key_path, secret_path)
-backtest_wma = BackTest(key_path, secret_path)
 
+#--------------------- Optional -----------------#
+backtest.symbol = "ETHUSDT"
+backtest.start_date = "1 Jan, 2018"
+backtest.end_date = "8 Dec, 2020"
+backtest.kline_interval = KlineInterval.ONE_DAY
+backtest.periods_fast = [8,10,12,14]
+backtest.periods_slow = [10,20,30,40,50,60,70,80]
+#------------------------------------------------#
 
-# # Optional
-# backtest.symbol = "BTCUSDT"
-backtest_wma.start_date = "1 Jun, 2018"
-backtest_wma.end_date = "1 Jun, 2019"
-# backtest.kline_interval = KlineInterval.TWELVE_HOURS
-backtest_wma.periods_fast = [4, 6]
-backtest_wma.periods_slow = [12, 18, 30]
-
-backtest.indicator = "SMA"
-backtest_ema.indicator = "EMA"
-backtest_wma.indicator = "WMA"
+backtest.indicator = "WMA"
 
 backtest.initialize_client()
-backtest_ema.initialize_client()
-backtest_wma.initialize_client()
 
-my_prices = backtest.df_prices
-my_signals = backtest.df_signals
+prices = backtest.df_prices
 
-prices_ema = backtest_ema.df_prices
-signals_ema = backtest_ema.df_signals
+# Fix datetime colmn
+prices['Open time'] = pd.to_datetime(prices['Open time'], unit='ms')
+prices['Close time'] = pd.to_datetime(prices['Close time'], unit='ms')
 
-prices_wma = backtest_wma.df_prices
-signals_wma = backtest_wma.df_signals
+signals = backtest.df_signals
 
-
-performance = ComputePerformance(my_signals, my_prices)
-performance_ema = ComputePerformance(signals_ema, prices_ema)
-performance_wma = ComputePerformance(signals_wma, prices_wma)
+performance = ComputePerformance(df_signals=signals, df_prices=prices)
 
 test = performance.get_macd_performance()
-test_ema = performance_ema.get_macd_performance()
-test_wma = performance_wma.get_macd_performance()
-
-print("\n EMA")
-print(test_ema)
-print("\n WMA")
-print(test_wma)
-print("\n SMA")
-print(test)
 
 comp_stat = ComputeStatistics()
+
 my_stats = comp_stat.calculate_stats(test, backtest.periods)
 
 print("...MY STATS...")
 print(my_stats)
 
 
+#df_prices.loc[325,:]
