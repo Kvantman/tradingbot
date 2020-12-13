@@ -21,10 +21,10 @@ backtest = BackTest(key_path, secret_path)
 
 #--------------------- Optional -----------------#
 backtest.symbol = "BTCUSDT"
-backtest.start_date = "1 Jan, 2020"
-backtest.end_date = "1 Jul, 2020"
+backtest.start_date = "1 Jan, 2018"
+backtest.end_date = "1 Jan, 2021"
 backtest.kline_interval = KlineInterval.ONE_DAY
-backtest.periods_fast = [6,9]
+backtest.periods_fast = [7,9,12]
 backtest.periods_slow = [18,22,26]
 #------------------------------------------------#
 
@@ -45,26 +45,32 @@ signals = backtest.df_signals
 performance = ComputePerformance(df_signals=signals, df_prices=prices, shorting=False)
 my_performance = performance.get_macd_performance()
 
-# STATS
-#comp_stat = ComputeStatistics()
-#my_stats = comp_stat.calculate_stats(my_performance,backtest.periods)
-
 # HODL
 HODL_performance = HODL(prices, backtest.periods, 'Close', 100).performance()
 
 # Add HODL to my_performance
-new_df = my_performance
-new_df['Close'] = HODL_performance
+my_df = my_performance
+my_df['Close'] = HODL_performance
 
+# STATS
 # Get stats again to compare with HODL
-new_comp_stat = ComputeStatistics()
-new_stats = new_comp_stat.calculate_stats(new_df,backtest.periods)
+comp_stats = ComputeStatistics()
+stats = comp_stats.calculate_stats(my_df,backtest.periods)
 
+# SMA PLOT
+backtest.df_sma.plot()
+plt.suptitle('SMA indicators', fontsize=18)
+plt.ylabel('Price', fontsize=14)
+plt.xlabel(f'Time resolution: {backtest.kline_interval}', fontsize=14)
+plt.savefig('test.jpg')
 
+# PORTFOLIO PLOT
 #fig = plt.figure()
 my_performance.plot()
-plt.suptitle('test title', fontsize=18)
+plt.suptitle('Portfolio value over time', fontsize=18)
 plt.ylabel('Portfolio value', fontsize=14)
 plt.xlabel(f'Time resolution: {backtest.kline_interval}', fontsize=14)
 plt.savefig('test.jpg')
 #fig.savefig('test.jpg')
+
+
