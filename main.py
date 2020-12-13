@@ -2,7 +2,8 @@
 from binance.client import Client 
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
+from matplotlib import pyplot as plt
+#import matplotlib.pyplot as plt
 import quantstats as qs
 import statistics
 
@@ -11,6 +12,7 @@ from KlineInterval import *
 from BackTest import *
 from ComputePerformance import *
 from ComputeStatistics import *
+from HODL import *
 
 key_path = r'C:\Users\JLuca\Documents\repos\TradingBot/API_key.txt'
 secret_path = r'C:\Users\JLuca\Documents\repos\TradingBot/API_secret.txt'
@@ -18,15 +20,15 @@ secret_path = r'C:\Users\JLuca\Documents\repos\TradingBot/API_secret.txt'
 backtest = BackTest(key_path, secret_path)
 
 #--------------------- Optional -----------------#
-backtest.symbol = "ETHUSDT"
-backtest.start_date = "1 Jan, 2018"
-backtest.end_date = "8 Dec, 2020"
+backtest.symbol = "BTCUSDT"
+backtest.start_date = "1 Jan, 2020"
+backtest.end_date = "1 Jul, 2020"
 backtest.kline_interval = KlineInterval.ONE_DAY
-backtest.periods_fast = [8,10,12,14]
-backtest.periods_slow = [10,20,30,40,50,60,70,80]
+backtest.periods_fast = [6,9]
+backtest.periods_slow = [18,22,26]
 #------------------------------------------------#
 
-backtest.indicator = "WMA"
+backtest.indicator = "SMA"
 
 backtest.initialize_client()
 
@@ -36,18 +38,33 @@ prices = backtest.df_prices
 prices['Open time'] = pd.to_datetime(prices['Open time'], unit='ms')
 prices['Close time'] = pd.to_datetime(prices['Close time'], unit='ms')
 
+# MACD Signals
 signals = backtest.df_signals
 
-performance = ComputePerformance(df_signals=signals, df_prices=prices)
+# MACD performance
+performance = ComputePerformance(df_signals=signals, df_prices=prices, shorting=False)
+my_performance = performance.get_macd_performance()
 
-test = performance.get_macd_performance()
+# STATS
+#comp_stat = ComputeStatistics()
+#my_stats = comp_stat.calculate_stats(my_performance,backtest.periods)
 
-comp_stat = ComputeStatistics()
+# HODL
+HODL_performance = HODL(prices, backtest.periods, 'Close', 100).performance()
 
-my_stats = comp_stat.calculate_stats(test, backtest.periods)
+# Add HODL to my_performance
+new_df = my_performance
+new_df['Close'] = HODL_performance
 
-print("...MY STATS...")
-print(my_stats)
+# Get stats again to compare with HODL
+new_comp_stat = ComputeStatistics()
+new_stats = new_comp_stat.calculate_stats(new_df,backtest.periods)
 
 
-#df_prices.loc[325,:]
+#fig = plt.figure()
+my_performance.plot()
+plt.suptitle('test title', fontsize=18)
+plt.ylabel('Portfolio value', fontsize=14)
+plt.xlabel(f'Time resolution: {backtest.kline_interval}', fontsize=14)
+plt.savefig('test.jpg')
+#fig.savefig('test.jpg')

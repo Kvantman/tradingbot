@@ -12,7 +12,7 @@ class BackTest:
     end_date = "1 Dec, 2020"
     kline_interval = KlineInterval.ONE_DAY
     periods_fast = [6]
-    periods_slow = [9,15,21]
+    periods_slow = [9,15,21,30]
     price_column = "Close"
     indicator = "SMA"
     column_names = ['Open time', 'Open', 'High', 'Low',

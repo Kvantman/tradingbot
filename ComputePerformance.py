@@ -14,11 +14,12 @@ class ComputePerformance:
     trading_fee = 1/100
     taker_fee = 0.04/100
     spread_percentage = 0.05/100
-    shorting = False
+    #shorting = False
     
-    def __init__(self, df_signals: pd.DataFrame, df_prices: pd.DataFrame):
+    def __init__(self, df_signals: pd.DataFrame, df_prices: pd.DataFrame, shorting):
         self.df_signals = df_signals
         self.df_prices = df_prices
+        self.shorting = shorting
         
         
     def get_macd_performance(self) -> pd.DataFrame:
