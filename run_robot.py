@@ -11,14 +11,24 @@ from robot import Robot
 key_path = r'C:\Users\JLuca\Documents\repos\TradingBot/API_key.txt'
 secret_path = r'C:\Users\JLuca\Documents\repos\TradingBot/API_secret.txt'
 
+# Default params
+symbol = 'BTCUSDT'
+time_resolution = '1d'
+fast_period = 9
+slow_period = 22
+
 # Create robot
-my_robot = Robot(symbol = 'BTCUSDT', api_key_path = key_path, api_secret_path = secret_path)
+my_robot = Robot(symbol, key_path, secret_path)
 
 # Set strategy
-my_robot.set_MACD_strategy(time_resolution = '1d', fast_period = 9, slow_period = 22)
+my_robot.set_MACD_strategy(time_resolution, fast_period, slow_period)
 
+my_robot.run()
 
-while __name__ == 'main':
-    my_robot.run_robot()
-    time.sleep(86400)
+print(f"Signal: {my_robot.signal}")
+
+#while __name__ == 'main':
+#    my_robot.run()
+#    print(my_robot.ma_slow)
+#    time.sleep(86400)
     

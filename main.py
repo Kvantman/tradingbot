@@ -21,11 +21,11 @@ backtest = BackTest(key_path, secret_path)
 
 #--------------------- Optional -----------------#
 backtest.symbol = "BTCUSDT"
-backtest.start_date = "1 Jan, 2018"
-backtest.end_date = "1 Jan, 2021"
+backtest.start_date = "1 Nov, 2020"
+backtest.end_date = "31 Dec, 2020"
 backtest.kline_interval = KlineInterval.ONE_DAY
-backtest.periods_fast = [7,9,12]
-backtest.periods_slow = [18,22,26]
+backtest.periods_fast = [5,9,13]
+backtest.periods_slow = [22]
 #------------------------------------------------#
 
 backtest.indicator = "SMA"
@@ -57,20 +57,29 @@ my_df['Close'] = HODL_performance
 comp_stats = ComputeStatistics()
 stats = comp_stats.calculate_stats(my_df,backtest.periods)
 
-# SMA PLOT
-backtest.df_sma.plot()
+# MA plot
+
+if hasattr(backtest, 'df_sma'):
+    df_ma = backtest.df_sma
+if hasattr(backtest, 'df_ema'):
+    df_ma = backtest.df_ema
+if hasattr(backtest, 'df_wma'):
+    df_ma = backtest.df_wma
+    
+fig1 = plt.figure()
+symbol_price_df = pd.DataFrame(pd.to_numeric(prices['Close']))
+ma_plot = pd.concat([df_ma,symbol_price_df])
+ma_plot.plot()
 plt.suptitle('SMA indicators', fontsize=18)
 plt.ylabel('Price', fontsize=14)
 plt.xlabel(f'Time resolution: {backtest.kline_interval}', fontsize=14)
-plt.savefig('test.jpg')
 
 # PORTFOLIO PLOT
-#fig = plt.figure()
+fig2 = plt.figure()
 my_performance.plot()
-plt.suptitle('Portfolio value over time', fontsize=18)
+plt.suptitle('Strategy performance', fontsize=18)
 plt.ylabel('Portfolio value', fontsize=14)
 plt.xlabel(f'Time resolution: {backtest.kline_interval}', fontsize=14)
-plt.savefig('test.jpg')
-#fig.savefig('test.jpg')
 
+print(stats)
 
