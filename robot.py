@@ -11,7 +11,7 @@ from binance.client import Client
 class Robot:
     
     min_trade_val = 1
-    assets = ['BTC', 'ETH', 'LTC', 'BNB']
+    assets = ['EUR', 'USDT','BTC', 'ETH', 'LTC', 'BNB']
     
     def __init__(self, symbol, api_key_path, api_secret_path):
         self.symbol = symbol
@@ -52,16 +52,19 @@ class Robot:
         
         
     def _get_account_value(self):
-        account_value = {}
+        account_value = {} # Qouted in USDT
         
         for asset in self.account_balance.keys():
-            symbol = asset+'USDT'
-            asset_price = float(self.client.get_avg_price(symbol=symbol)['price']) # Avg 5 min price 
-            asset_value = asset_price * self.account_balance[asset]
+            if asset != 'USDT':
+                symbol = asset+'USDT'
+                asset_price = float(self.client.get_avg_price(symbol=symbol)['price']) # Avg 5 min price 
+                asset_value = asset_price * self.account_balance[asset]
+            elif asset == 'USDT':
+                asset_value = self.account_balance['USDT']
             account_value[asset] = asset_value
         self.account_value = account_value
     
-        
+    
     def _fetch_historical_prices(self):
         prices = self.client.get_historical_klines(self.symbol, Client.KLINE_INTERVAL_1DAY, "100 day ago UTC")
         prices = pd.DataFrame(prices)

@@ -5,6 +5,7 @@ Created on Sun Dec 13 21:12:06 2020
 @author: JLuca
 """
 import time
+import pandas as pd
 
 from robot import Robot
 
@@ -24,6 +25,10 @@ my_robot = Robot(symbol, key_path, secret_path)
 my_robot.set_MACD_strategy(time_resolution, fast_period, slow_period)
 
 my_robot.run()
+
+info = pd.DataFrame([my_robot.client.get_account()])
+
+asset_balance = pd.DataFrame([my_robot.client.get_asset_balance])
 
 
 #while __name__ == 'main':
