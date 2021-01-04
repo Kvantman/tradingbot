@@ -8,8 +8,8 @@ import time
 
 from robot import Robot
 
-key_path = r'C:\Users\JLuca\Documents\repos\TradingBot/API_key.txt'
-secret_path = r'C:\Users\JLuca\Documents\repos\TradingBot/API_secret.txt'
+key_path = r"/home/pi/Desktop/api_key.txt"
+secret_path = r"/home/pi/Desktop/api_secret.txt"
 
 # Default params
 symbol = 'BTCUSDT'
@@ -25,7 +25,6 @@ my_robot.set_MACD_strategy(time_resolution, fast_period, slow_period)
 
 my_robot.run()
 
-print(f"Signal: {my_robot.signal}")
 
 #while __name__ == 'main':
 #    my_robot.run()

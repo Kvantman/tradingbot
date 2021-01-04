@@ -10,6 +10,8 @@ from binance.client import Client
 
 class Robot:
     
+    min_trade_val = 1
+    assets = ['BTC', 'ETH', 'LTC', 'BNB']
     
     def __init__(self, symbol, api_key_path, api_secret_path):
         self.symbol = symbol
@@ -31,14 +33,35 @@ class Robot:
     def run(self):
         self._login_client()
         prices = self._fetch_historical_prices()
-        signals = self._get_signals()
         trade = self._trade()
         
         
     def _login_client(self):
         self.client = Client(self.api_key, self.api_secret)
-        
 
+
+    def _get_account_balance(self):
+        account_balance = {}
+        for asset in self.assets:
+            balance = self.client.get_asset_balance(asset)
+            account_balance[asset] = float(balance['free'])
+        self.account_balance = account_balance
+        
+        # Get account value in USDT
+        self._get_account_value()
+        
+        
+    def _get_account_value(self):
+        account_value = {}
+        
+        for asset in self.account_balance.keys():
+            symbol = asset+'USDT'
+            asset_price = float(self.client.get_avg_price(symbol=symbol)['price']) # Avg 5 min price 
+            asset_value = asset_price * self.account_balance[asset]
+            account_value[asset] = asset_value
+        self.account_value = account_value
+    
+        
     def _fetch_historical_prices(self):
         prices = self.client.get_historical_klines(self.symbol, Client.KLINE_INTERVAL_1DAY, "100 day ago UTC")
         prices = pd.DataFrame(prices)
@@ -51,70 +74,112 @@ class Robot:
         self.prices = prices        
         
         
-    def _get_signals(self): 
+    def _get_indicator_signal(self): 
         self.ma_fast = self.prices['Close'].rolling(self.fast_period).mean()
         self.ma_slow = self.prices['Close'].rolling(self.slow_period).mean()
 
-        signals = np.array([])
+        signal_array = np.array([])
+        
         # Buy when ma_fast is above ma_slow
         if self.ma_fast.iloc[-1] > self.ma_slow.iloc[-1]:
-            signals = np.append(signals, 1)
+            signal_array = np.append(signal_array, 1)
             
         # Sell signal when ma_fast is below ma_slow
         elif self.ma_fast.iloc[-1] < self.ma_slow.iloc[-1]:
-            signals = np.append(signals, 0)
+            signal_array = np.append(signal_array, 0)
             
         # if signal = 1 <-- Invest or stay invested
         # if signal = 0 <-- Sell or remain out
-        if signals.mean() > 0.5:
+        if signal_array.mean() > 0.5:
             signal = 1
         else:
             signal = 0
-        
-        self.signal = signal
+            
+        return signal
             
 
-    def _buy_or_sell(self):
+    def _get_trade_signal(self):
+        
+        indicator_signal = self._get_indicator_signal()
         
         # Check if already invested
         self._get_account_balance()
         
-        if self.account_balance['BTC'] > 0.0001:
-            invested = True 
+        if self.account_value['BTC'] > 1:
+            invested = True
+        else:
+            invested = False
         
         # Get buy or sell signal
-        if self.signal == 0 and invested:
-            sell = True
-        elif self.signal == 1 and not invested:
-            buy = True
-        elif self.signal == 1 and invested:
-            pass
-        elif self.signal == 0 and not invested:
-            pass
         
-        # Return buy/sell signal
-        if 'buy' in locals():
-            self.buy = buy
+        if indicator_signal == 0 and invested: # SELL
+            signal = 'SELL'
+            print("1")
+            
+        elif indicator_signal == 1 and not invested: # BUY
+            signal = 'BUY'
+            print("2")
+            
+        elif indicator_signal == 1 and invested: # Do nothing
+            signal = 'PASS'
+            print("3")
+
+        elif indicator_signal == 0 and not invested: # Do nothing
+            signal = 'PASS'
+            print("4")
         
-        if 'sell' in locals():
-            self.sell = sell
-    
-    
-    def _get_account_balance(self):
-        account_balance = {}
-        assets = ['BTC', 'ETH', 'LTC']
-        for asset in assets:
-            balance = self.client.get_asset_balance(asset)
-            account_balance[asset] = float(balance['free'])
-        
-        self.account_balance = account_balance
-    
+        return signal
+
     
     def _trade(self):
-        self._buy_or_sell()
+        trade_signal = self._get_trade_signal()
+
+        if trade_signal == 'BUY': # BUY
+            #_order_target_percent(self, symbol = self.symbol, target_percent = 1)
+            print("buy")
+            
+        if trade_signal == 'SELL': # SELL
+            #_order_target_percent(self, symbol = self.symbol, target_percent = 0)
+            print("sell")
+            
+        if trade_signal == 'PASS': #PASS
+            print("pass")
+         
+            
+    def _order_target_percent(self, symbol, target_percent):
+        target_value = sum(self.account_value.values()) * target_percent
+        delta = self.account_value[symbol] - target_value
+        
+        
+        if delta > 0 and abs(delta) > self.min_trade_val:
+            # Sell
+            pass
+            #quantity_sell = 
+            #_market_order_sell(self, symbol=self.symbol, quantity = quantity_sell)
+            
     
-    
-    def _order_target_percent(self):
-        pass
+        elif delta < 0 and abs(delta) > self.min_trade_val:
+            # Buy
+            pass
+            #quantity_buy =                   
+            #_market_order_buy(self, symbol=self.symbol, quantity = quantity_buy)
+            
+                                             
+    def _market_order_buy(self, symbol, quantity):
+        order = self.client.order_market_buy(symbol=symbol, quantity=quantity)
+        
+        
+    def _market_order_sell(self, symbol, quantity):
+        order = self.client.order_market_buy(symbol=symbol, quantity=quantity)
+        
+        
+    def _order_limit_buy(self, symbol, quantity, price):
+        order = client.order_limit_buy(symbol=symbol, quantity=quantity, price=price)
+
+
+    def _order_limit_sell(self, symbol, quantity, price):
+        order = client.order_limit_sell(symbol=symbol, quantity=quantity, price=price)
+
+
     def _log_trades(self):
         pass
