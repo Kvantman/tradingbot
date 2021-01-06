@@ -12,8 +12,11 @@ from binance.client import Client
 
 class Robot:
     
-    min_trade_val = 1
+    
     assets = ['EUR', 'USDT','BTC', 'ETH', 'LTC', 'BNB']
+    minNotional = 10
+    min_trade_val = minNotional
+    
     
     def __init__(self, symbol_pair, api_key_path, api_secret_path):
         self.symbol_pair = symbol_pair
@@ -62,15 +65,15 @@ class Robot:
                          'Quote asset volume',' Number of trades',
                          'Taker buy base asset volume', 
                          'Taker buy qoute asset volume', 'Ignore']
-        prices.columns = column_names
         
+        prices.columns = column_names
         current_price = float(prices.iloc[-1]['Close'])
         
         return current_price
     
     def _trade(self):
         trade_signal = self._get_trade_signal()
-
+        
         #if trade_signal:
         if trade_signal == 'BUY': # BUY
             print("TODO: BUY")
@@ -91,14 +94,12 @@ class Robot:
         
         # Check if already invested
         self._get_account_balance()
-        
-        if self.account_balance_USDT['LTC'] > 1:
+        if self.account_balance_USDT['LTC'] > self.minNotional:
             invested = True
         else:
             invested = False
         
         # Get buy or sell signal
-        
         if indicator_signal == 0 and invested: # SELL
             signal = 'SELL'
             
@@ -110,10 +111,13 @@ class Robot:
 
         elif indicator_signal == 0 and not invested: # Do nothing
             signal = 'PASS'
+            
+        else:
+            signal = 'PASS'
         
         return signal
             
-      
+    
     def _get_indicator_signal(self): 
         self.ma_fast = self.prices['Close'].rolling(self.fast_period).mean()
         self.ma_slow = self.prices['Close'].rolling(self.slow_period).mean()
@@ -165,13 +169,8 @@ class Robot:
             
     def _order_target_percent(self, symbol, target_percent):
         total_value = self.account_balance_USDT[symbol] + self.account_balance_USDT["USDT"]
-        print("total:")
-        print(total_value)
         target_value = total_value * (target_percent/100)
         delta = self.account_balance_USDT[symbol] - target_value
-        print("DELTA:")
-        print(delta)
-        
         delta_abs = abs(delta)
 
  
@@ -183,11 +182,8 @@ class Robot:
                 symbol_fraction = (delta_abs / self.account_balance[symbol])
                 symbol_value = self.account_balance[symbol]
                 amount = 0.99 * symbol_fraction * symbol_value
-                
-            precision = 5
-            amount_str = "{:0.0{}f}".format(amount, precision) 
             
-            self._market_order_sell(symbol = self.symbol_pair, quantity = amount_str)
+            self._market_order_sell(symbol = self.symbol_pair, quantity = self._order_format(amount))
             print("_order SELL")
             
     
@@ -199,17 +195,18 @@ class Robot:
                 symbol_fraction = (delta_abs / self.account_balance[symbol])
                 symbol_value = self.account_balance[symbol]
                 amount = 0.99 * symbol_fraction * symbol_value
-            
-            precision = 5
-            amount_str = "{:0.0{}f}".format(amount, precision)
-            print(f"Amount: {amount}")
-            
-            self._market_order_buy(symbol = self.symbol_pair, quantity = amount_str)
+                
+            self._market_order_buy(symbol = self.symbol_pair, quantity = self._order_format(amount))
             print("_order BUY")
 
         else:
             print("_order pass")
-            #pass
+
+            
+    def _order_format(self, amount):
+        precision = 5
+        amount_str = "{:0.0{}f}".format(amount, precision)
+        return amount_str
             
                                              
     def _market_order_buy(self, symbol, quantity):
@@ -220,15 +217,13 @@ class Robot:
         order = self.client.order_market_buy(symbol=symbol, quantity=quantity)
         
         
-    #def _order_limit_buy(self, symbol, quantity, price):
-    #    order = client.order_limit_buy(symbol=symbol, quantity=quantity, price=price)
+    def _order_limit_buy(self, symbol, quantity, price):
+        order = client.order_limit_buy(symbol=symbol, quantity=quantity, price=price)
+        
 
-
-    #def _order_limit_sell(self, symbol, quantity, price):
-    #    order = client.order_limit_sell(symbol=symbol, quantity=quantity, price=price)
-
-
-
+    def _order_limit_sell(self, symbol, quantity, price):
+        order = client.order_limit_sell(symbol=symbol, quantity=quantity, price=price)
+        
     
     def _log_trades(self):
         pass

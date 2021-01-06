@@ -34,18 +34,11 @@ my_robot.run()
 info = my_robot.client.get_symbol_info('LTCUSDT')
 print(info)
 
-""""
-This error appears because you are trying to create an order with a quantity lower than the minimun required.
 
-You can access the minimun required of a specific pair with:
+# SYMBOL info
+#info = client.get_symbol_info('ETHUSDT')
+#print(info)
 
-info = client.get_symbol_info('ETHUSDT')
-print(info)
-Output a dictionary with information about that pair. Now you can access the minimun quantity required with:
-
-print(info['filters'][2]['minQty'])
-# 0.00001
-""""
 # Test check
 #info = pd.DataFrame([my_robot.client.get_account()])
 
