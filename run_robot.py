@@ -16,13 +16,13 @@ secret_path = r"/home/pi/Desktop/api_secret.txt"
 #secret_path = r"C:\Users\JLuca\Documents\repos\TradingBot\api_secret.txt"
 
 # Default params
-symbol = 'BTCUSDT'
+symbol_pair = 'LTCUSDT'
 time_resolution = '1d'
 fast_period = 9
 slow_period = 22
 
 # Create robot
-my_robot = Robot(symbol, key_path, secret_path)
+my_robot = Robot(symbol_pair, key_path, secret_path)
 
 # Set strategy
 my_robot.set_MACD_strategy(time_resolution, fast_period, slow_period)
