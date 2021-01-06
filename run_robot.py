@@ -12,6 +12,9 @@ from robot import Robot
 key_path = r"/home/pi/Desktop/api_key.txt"
 secret_path = r"/home/pi/Desktop/api_secret.txt"
 
+#key_path = r"C:\Users\JLuca\Documents\repos\TradingBot\api_key.txt"
+#secret_path = r"C:\Users\JLuca\Documents\repos\TradingBot\api_secret.txt"
+
 # Default params
 symbol = 'BTCUSDT'
 time_resolution = '1d'
@@ -24,11 +27,13 @@ my_robot = Robot(symbol, key_path, secret_path)
 # Set strategy
 my_robot.set_MACD_strategy(time_resolution, fast_period, slow_period)
 
+# Run!
 my_robot.run()
 
-info = pd.DataFrame([my_robot.client.get_account()])
+# Test check
+#info = pd.DataFrame([my_robot.client.get_account()])
 
-asset_balance = pd.DataFrame([my_robot.client.get_asset_balance])
+#asset_balance = pd.DataFrame([my_robot.client.get_asset_balance])
 
 
 #while __name__ == 'main':

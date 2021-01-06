@@ -13,8 +13,8 @@ class Robot:
     min_trade_val = 1
     assets = ['EUR', 'USDT','BTC', 'ETH', 'LTC', 'BNB']
     
-    def __init__(self, symbol, api_key_path, api_secret_path):
-        self.symbol = symbol
+    def __init__(self, symbol_pair, api_key_path, api_secret_path):
+        self.symbol_pair = symbol_pair
         self.api_key_path = api_key_path
         self.api_secret_path = api_secret_path
         with open(api_key_path) as f:
@@ -32,41 +32,16 @@ class Robot:
         
     def run(self):
         self._login_client()
-        prices = self._fetch_historical_prices()
-        trade = self._trade()
+        self._fetch_historical_prices()
+        self._trade()
         
         
     def _login_client(self):
         self.client = Client(self.api_key, self.api_secret)
-
-
-    def _get_account_balance(self):
-        account_balance = {}
-        for asset in self.assets:
-            balance = self.client.get_asset_balance(asset)
-            account_balance[asset] = float(balance['free'])
-        self.account_balance = account_balance
         
-        # Get account value in USDT
-        self._get_account_value()
-        
-        
-    def _get_account_value(self):
-        account_value = {} # Qouted in USDT
-        
-        for asset in self.account_balance.keys():
-            if asset != 'USDT':
-                symbol = asset+'USDT'
-                asset_price = float(self.client.get_avg_price(symbol=symbol)['price']) # Avg 5 min price 
-                asset_value = asset_price * self.account_balance[asset]
-            elif asset == 'USDT':
-                asset_value = self.account_balance['USDT']
-            account_value[asset] = asset_value
-        self.account_value = account_value
-    
     
     def _fetch_historical_prices(self):
-        prices = self.client.get_historical_klines(self.symbol, Client.KLINE_INTERVAL_1DAY, "100 day ago UTC")
+        prices = self.client.get_historical_klines(self.symbol_pair, Client.KLINE_INTERVAL_1DAY, "100 day ago UTC")
         prices = pd.DataFrame(prices)
         column_names = ['Open time', 'Open', 'High', 'Low',
                          'Close', 'Volume', 'Close time',
@@ -74,33 +49,24 @@ class Robot:
                          'Taker buy base asset volume', 
                          'Taker buy qoute asset volume', 'Ignore']
         prices.columns = column_names
-        self.prices = prices        
-        
-        
-    def _get_indicator_signal(self): 
-        self.ma_fast = self.prices['Close'].rolling(self.fast_period).mean()
-        self.ma_slow = self.prices['Close'].rolling(self.slow_period).mean()
+        self.prices = prices
 
-        signal_array = np.array([])
-        
-        # Buy when ma_fast is above ma_slow
-        if self.ma_fast.iloc[-1] > self.ma_slow.iloc[-1]:
-            signal_array = np.append(signal_array, 1)
-            
-        # Sell signal when ma_fast is below ma_slow
-        elif self.ma_fast.iloc[-1] < self.ma_slow.iloc[-1]:
-            signal_array = np.append(signal_array, 0)
-            
-        # if signal = 1 <-- Invest or stay invested
-        # if signal = 0 <-- Sell or remain out
-        if signal_array.mean() > 0.5:
-            signal = 1
-        else:
-            signal = 0
-            
-        return signal
-            
+    
+    def _trade(self):
+        trade_signal = self._get_trade_signal()
 
+        if trade_signal == 'BUY': # BUY
+            _order_target_percent(self, self.symbol_pair, 100)
+            print("buy")
+            
+        if trade_signal == 'SELL': # SELL
+            _order_target_percent(self, self.symbol_pair, 0)
+            print("sell")
+            
+        if trade_signal == 'PASS': #PASS
+            print("pass")
+            
+            
     def _get_trade_signal(self):
         
         indicator_signal = self._get_indicator_signal()
@@ -108,7 +74,7 @@ class Robot:
         # Check if already invested
         self._get_account_balance()
         
-        if self.account_value['BTC'] > 1:
+        if self.account_balance_USDT['BTC'] > 1:
             invested = True
         else:
             invested = False
@@ -132,26 +98,65 @@ class Robot:
             print("4")
         
         return signal
-
-    
-    def _trade(self):
-        trade_signal = self._get_trade_signal()
-
-        if trade_signal == 'BUY': # BUY
-            #_order_target_percent(self, symbol = self.symbol, target_percent = 1)
-            print("buy")
             
-        if trade_signal == 'SELL': # SELL
-            #_order_target_percent(self, symbol = self.symbol, target_percent = 0)
-            print("sell")
+      
+    def _get_indicator_signal(self): 
+        self.ma_fast = self.prices['Close'].rolling(self.fast_period).mean()
+        self.ma_slow = self.prices['Close'].rolling(self.slow_period).mean()
+
+        signal_array = np.array([])
+        
+        # Buy when ma_fast is above ma_slow
+        if self.ma_fast.iloc[-1] > self.ma_slow.iloc[-1]:
+            signal_array = np.append(signal_array, 1)
             
-        if trade_signal == 'PASS': #PASS
-            print("pass")
+        # Sell signal when ma_fast is below ma_slow
+        elif self.ma_fast.iloc[-1] < self.ma_slow.iloc[-1]:
+            signal_array = np.append(signal_array, 0)
+            
+        # if signal = 1 <-- Invest or stay invested
+        # if signal = 0 <-- Sell or remain out
+        if signal_array.mean() > 0.5:
+            signal = 1
+        else:
+            signal = 0
+            
+        return signal
+            
+            
+    def _get_account_balance(self):
+        account_balance = {}
+        for asset in self.assets:
+            balance = self.client.get_asset_balance(asset)
+            account_balance[asset] = float(balance['free'])
+        self.account_balance = account_balance
+        
+        # Get account value in USDT
+        self._get_account_balance_USDT()
+        
+        
+    def _get_account_balance_USDT(self):
+        account_balance_USDT = {} # Qouted in USDT
+        
+        for asset in self.account_balance.keys():
+            if asset != 'USDT':
+                symbol_pair = asset+'USDT'
+                asset_price = float(self.client.get_avg_price(symbol = symbol_pair)['price']) # Avg 5 min price 
+                asset_value = asset_price * self.account_balance[asset]
+            elif asset == 'USDT':
+                asset_value = self.account_balance['USDT']
+            account_balance_USDT[asset] = asset_value
+        self.account_balance_USDT = account_balance_USDT
          
             
     def _order_target_percent(self, symbol, target_percent):
-        target_value = sum(self.account_value.values()) * target_percent
-        delta = self.account_value[symbol] - target_value
+        print("order target percent")
+        total_value = self.account_balance_USDT[symbol]
+        print(total_value)
+        target_value = total_value * (target_percent/100)
+        print(target_value)
+        delta = self.account_balance_USDT[symbol] - target_value
+        print(delta)
         
         
         if delta > 0 and abs(delta) > self.min_trade_val:
