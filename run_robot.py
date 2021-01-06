@@ -30,10 +30,6 @@ my_robot.set_MACD_strategy(time_resolution, fast_period, slow_period)
 # Run!
 my_robot.run()
 
-# symbol info
-info = my_robot.client.get_symbol_info('LTCUSDT')
-print(info)
-
 
 # SYMBOL info
 #info = client.get_symbol_info('ETHUSDT')
