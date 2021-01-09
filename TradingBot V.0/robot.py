@@ -225,6 +225,4 @@ class Robot:
         order = client.order_limit_sell(symbol=symbol, quantity=quantity, price=price)
         
     
-    def _log_trades(self):
-        pass
 
