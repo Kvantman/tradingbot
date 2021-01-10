@@ -38,6 +38,7 @@ class Robot:
     def run(self):
         self._login_client()
         self._get_historical_prices()
+        #self._get_account_balance()
         self._trade()
         
         
