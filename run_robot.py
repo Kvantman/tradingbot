@@ -28,8 +28,8 @@ with open(email_password_path) as f:
 # Default params
 symbol_pair = 'LTCUSDT'
 time_resolution = '1d'
-fast_period = 9
-slow_period = 22
+fast_period = 12
+slow_period = 19
 
 # Create robot
 my_robot = Robot(symbol_pair, key_path, secret_path)
@@ -84,13 +84,17 @@ while True:
     password = email_password
     context = ssl.create_default_context()
     
+    if my_robot.madeTrades == True:
+        msg = "Robot made some trades"
+    else:
+        msg = "No trades today"
+    
     with smtplib.SMTP_SSL("smtp.gmail.com", port, context = context) as server:
         server.login("j.lucas.hudson@gmail.com", password)
         
-        server.sendmail("j.lucas.hudson@gmail.com","j.lucas.hudson@gmail.com", "hello, sent with Python")
+        server.sendmail("j.lucas.hudson@gmail.com","j.lucas.hudson@gmail.com", msg) # From, To, Msg
     
     print(log_book)
-
 
     # add trades....
     

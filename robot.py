@@ -16,6 +16,7 @@ class Robot:
     assets = ['EUR', 'USDT','BTC', 'ETH', 'LTC', 'BNB']
     minNotional = 10
     min_trade_val = minNotional
+    madeTrades = False
     
     
     def __init__(self, symbol_pair, api_key_path, api_secret_path):
@@ -173,6 +174,7 @@ class Robot:
         target_value = total_value * (target_percent/100)
         delta = self.account_balance_USDT[symbol] - target_value
         delta_abs = abs(delta)
+        print(f"delta: {delta}")
 
  
         if delta > 0 and abs(delta) > self.min_trade_val:
@@ -196,6 +198,7 @@ class Robot:
                 symbol_fraction = (delta_abs / self.account_balance[symbol])
                 symbol_value = self.account_balance[symbol]
                 amount = 0.99 * symbol_fraction * symbol_value
+            print(f"amount {amount}")
                 
             self._market_order_buy(symbol = self.symbol_pair, quantity = self._order_format(amount))
             print("_order BUY")
@@ -212,18 +215,23 @@ class Robot:
                                              
     def _market_order_buy(self, symbol, quantity):
         order = self.client.order_market_buy(symbol=symbol, quantity=quantity)
+        print(f"symbol {symbol}")
+        print(f"quantity {quantity})")
+        self.madeTrades = True
         
         
     def _market_order_sell(self, symbol, quantity):
         order = self.client.order_market_buy(symbol=symbol, quantity=quantity)
+        self.madeTrades = True
         
         
     def _order_limit_buy(self, symbol, quantity, price):
         order = client.order_limit_buy(symbol=symbol, quantity=quantity, price=price)
-        
+        self.madeTrades = True
+
 
     def _order_limit_sell(self, symbol, quantity, price):
         order = client.order_limit_sell(symbol=symbol, quantity=quantity, price=price)
-        
+        self.madeTrades = True
     
 
