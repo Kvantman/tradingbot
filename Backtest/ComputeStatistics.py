@@ -11,6 +11,12 @@ class ComputeStatistics:
     def __init__(self):
         self.test = 1
         
+    def CAGR(self):
+        pass
+    
+    def calmar(self):
+        pass
+        
     
     def calculate_stats(self, df_performance, periods) -> pd.DataFrame:
         # Calculate Stats DataFrame
@@ -29,7 +35,7 @@ class ComputeStatistics:
             self.df_stats.loc['Value at end', col] = float("{:.3f}".format(end_val))
             
             # Return
-            return_percentage = ( (end_val/start_val) - 1 )
+            return_percentage = ( (end_val/start_val) - 1 )*100
             self.df_stats.loc['Return', col] = float("{:.3f}".format(return_percentage))
             
             # Standard deviation
@@ -43,10 +49,21 @@ class ComputeStatistics:
             # Sharpe ratio
             sharpe = qs.stats.sharpe(series)
             self.df_stats.loc['Sharpe', col] = float("{:.3f}".format(sharpe))
-            
-            # Max drawdown
-            maxDD = qs.stats.max_drawdown(series)
+
+            # Max drawdown (%)
+            maxDD = ( - qs.stats.max_drawdown(series) ) * 100
             self.df_stats.loc['Max DD', col] = float("{:.3f}".format(maxDD))
             
+            #Calmar ratio
+            self.df_stats.loc['Calmar', col] = self.df_stats.loc['Return', col] / self.df_stats.loc['Max DD', col]
+                
             
         return self.df_stats
+            
+    def rank_by(self, metric='Return'):
+        d = {'Strategy': self.df_stats.columns, metric: self.df_stats.loc[metric]}
+        df_rank_by = pd.DataFrame(data=d)
+        df_rank_by = df_rank_by.sort_values(by=[metric], ascending=False)
+        return df_rank_by
+            
+        

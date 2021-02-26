@@ -9,10 +9,10 @@ class BackTest:
     
     symbol = "BTCUSDT"
     start_date = "1 Jan, 2020"
-    end_date = "1 Dec, 2020"
+    end_date = "1 Feb, 2021"
     kline_interval = KlineInterval.ONE_DAY
-    periods_fast = [6]
-    periods_slow = [9,15,21,30]
+    periods_fast = [9,11]
+    periods_slow = [18,22,25]
     price_column = "Close"
     indicator = "SMA"
     column_names = ['Open time', 'Open', 'High', 'Low',
