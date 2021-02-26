@@ -11,10 +11,10 @@ class ComputePerformance:
     pass_count = {}
     long_count = {}
     short_count = {}
-    trading_fee = 0.1/100
+    trading_fee = 1/100
     taker_fee = 0.04/100
     spread_percentage = 0.05/100
-    shorting = False
+    #shorting = False
     
     def __init__(self, df_signals: pd.DataFrame, df_prices: pd.DataFrame, shorting):
         self.df_signals = df_signals
